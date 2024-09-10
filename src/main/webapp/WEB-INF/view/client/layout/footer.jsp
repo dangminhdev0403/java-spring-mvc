@@ -65,3 +65,25 @@
             </div>
         </div>
         <!-- Copyright End -->
+     <!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Your custom JavaScript code -->
+<script>
+    $(document).ready(function() {
+        const navElement = $("#navbarCollapse");
+        const currentUrl = window.location.pathname;
+
+        navElement.find('a.nav-link').each(function () {
+            const link = $(this);
+            const href = link.attr('href');
+
+            if (href === currentUrl) {
+                link.addClass('active');
+            } else {
+                link.removeClass('active');
+            }
+        });
+    });
+</script>
+
