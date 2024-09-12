@@ -65,7 +65,7 @@
                                 <div class="row g-4 fruite">
                                     <div class="col-12 col-md-4">
                                         <div class="row g-4">
-                                            <div class="col-12">
+                                            <div class="col-12" id="factoryFilter">
                                                 <div class="mb-2"><b>Hãng sản xuất</b></div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="checkbox" id="factory-1"
@@ -101,7 +101,7 @@
                                                 </div>
 
                                             </div>
-                                            <div class="col-12">
+                                            <div class="col-12" id="targetFilter">
                                                 <div class="mb-2"><b>Mục đích sử dụng</b></div>
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="checkbox" id="target-1"
@@ -134,7 +134,7 @@
 
 
                                             </div>
-                                            <div class="col-12">
+                                            <div class="col-12" id="priceFilter">
                                                 <div class="mb-2"><b>Mức giá</b></div>
 
                                                 <div class="form-check form-check-inline">
@@ -159,7 +159,7 @@
 
                                                 <div class="form-check form-check-inline">
                                                     <input class="form-check-input" type="checkbox" id="price-5"
-                                                        value="tren-20-triệu">
+                                                        value="tren-20-trieu">
                                                     <label class="form-check-label" for="price-5">Trên 20 triệu</label>
                                                 </div>
                                             </div>
@@ -179,7 +179,7 @@
                                                 </div>
 
                                                 <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="radio" id="sort-3"
+                                                    <input class="form-check-input" type="radio" id="sort-3" checked
                                                         value="gia-nothing" name="radio-sort">
                                                     <label class="form-check-label" for="sort-3">Không sắp xếp</label>
                                                 </div>
@@ -187,7 +187,8 @@
                                             </div>
                                             <div class="col-12">
                                                 <button
-                                                    class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4">
+                                                    class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4"
+                                                    id="btnFilter">
                                                     Lọc Sản Phẩm
                                                 </button>
                                             </div>
@@ -195,6 +196,9 @@
                                     </div>
                                     <div class="col-12 col-md-8 text-center">
                                         <div class="row g-4">
+                                            <c:if test="${totalPages ==  0}">
+                                                <div>Không tìm thấy sản phẩm</div>
+                                            </c:if>
                                             <c:forEach var="product" items="${products}">
                                                 <div class="col-md-6 col-lg-4">
                                                     <div class="rounded position-relative fruite-item">
@@ -240,29 +244,34 @@
                                                 </div>
                                             </c:forEach>
 
-                                            <div class="pagination d-flex justify-content-center mt-5">
-                                                <li class="page-item">
-                                                    <a class="${1 eq currentPage ? 'disabled page-link' : 'page-link'}"
-                                                        href="/products?page=${currentPage - 1}" aria-label="Previous">
-                                                        <span aria-hidden="true">&laquo;</span>
-                                                    </a>
-                                                </li>
-                                                <c:forEach begin="0" end="${totalPages - 1}" varStatus="loop">
+
+                                            <c:if test="${totalPages > 0}">
+                                                <div class="pagination d-flex justify-content-center mt-5">
                                                     <li class="page-item">
-                                                        <a class="${(loop.index + 1) eq currentPage ? 'active page-link' : 'page-link'}"
-                                                            href="/products?page=${loop.index + 1}">
-                                                            ${loop.index + 1}
+                                                        <a class="${1 eq currentPage ? 'disabled page-link' : 'page-link'}"
+                                                            href="/products?page=${currentPage - 1}${queryString}"
+                                                            aria-label="Previous">
+                                                            <span aria-hidden="true">&laquo;</span>
                                                         </a>
                                                     </li>
-                                                </c:forEach>
-                                                <li class="page-item">
-                                                    <a class="${totalPages eq currentPage ? 'disabled page-link' : 'page-link'}"
-                                                        href="/products?page=${currentPage + 1}" aria-label="Next">
-                                                        <span aria-hidden="true">&raquo;</span>
-                                                    </a>
-                                                </li>
+                                                    <c:forEach begin="0" end="${totalPages - 1}" varStatus="loop">
+                                                        <li class="page-item">
+                                                            <a class="${(loop.index + 1) eq currentPage ? 'active page-link' : 'page-link'}"
+                                                                href="/products?page=${loop.index + 1}${queryString}">
+                                                                ${loop.index + 1}
+                                                            </a>
+                                                        </li>
+                                                    </c:forEach>
+                                                    <li class="page-item">
+                                                        <a class="${totalPages eq currentPage ? 'disabled page-link' : 'page-link'}"
+                                                            href="/products?page=${currentPage + 1}${queryString}"
+                                                            aria-label="Next">
+                                                            <span aria-hidden="true">&raquo;</span>
+                                                        </a>
+                                                    </li>
 
-                                            </div>
+                                                </div>
+                                            </c:if>
                                         </div>
                                     </div>
                                 </div>
@@ -289,6 +298,188 @@
 
                     <!-- Template Javascript -->
                     <script src="/client/js/main.js"></script>
+                    <script>
+  $(document).ready(function () {
+    // Function to check checkboxes based on URL parameters
+    function restoreCheckedState() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Restore factory checkboxes
+        const factoryValues = urlParams.get('factory');
+        if (factoryValues) {
+            const factoryArr = factoryValues.split(',');
+            factoryArr.forEach(function (value) {
+                $(`#factoryFilter .form-check-input[value="${value}"]`).prop('checked', true);
+            });
+        }
+
+        // Restore target checkboxes
+        const targetValues = urlParams.get('target');
+        if (targetValues) {
+            const targetArr = targetValues.split(',');
+            targetArr.forEach(function (value) {
+                $(`#targetFilter .form-check-input[value="${value}"]`).prop('checked', true);
+            });
+        }
+
+        // Restore price checkboxes
+        const priceValues = urlParams.get('price');
+        if (priceValues) {
+            const priceArr = priceValues.split(',');
+            priceArr.forEach(function (value) {
+                $(`#priceFilter .form-check-input[value="${value}"]`).prop('checked', true);
+            });
+        }
+
+        // Restore radio button for sort order
+        const sortValue = urlParams.get('sort');
+        if (sortValue) {
+            $(`input[name="radio-sort"][value="${sortValue}"]`).prop('checked', true);
+        }
+    }
+
+    // Run the function when the page is loaded
+    restoreCheckedState();
+
+    // Handle the filter button click
+    $('#btnFilter').click(function (event) {
+        event.preventDefault();
+
+        let factoryArr = [];
+        let targetArr = [];
+        let priceArr = [];
+
+        // Factory filter
+        $("#factoryFilter .form-check-input:checked").each(function () {
+            factoryArr.push($(this).val());
+        });
+
+        // Target filter
+        $("#targetFilter .form-check-input:checked").each(function () {
+            targetArr.push($(this).val());
+        });
+
+        // Price filter
+        $("#priceFilter .form-check-input:checked").each(function () {
+            priceArr.push($(this).val());
+        });
+
+        // Sort order
+        let sortValue = $('input[name="radio-sort"]:checked').val();
+
+        const currentUrl = new URL(window.location.href);
+        const searchParams = currentUrl.searchParams;
+
+        // Add or update query parameters
+        searchParams.set('page', '1');
+        searchParams.set('sort', sortValue);
+        searchParams.delete('factory');
+        searchParams.delete('target');
+        searchParams.delete('price');
+
+        if (factoryArr.length > 0) {
+            searchParams.set('factory', factoryArr.join(','));
+        }
+        if (targetArr.length > 0) {
+            searchParams.set('target', targetArr.join(','));
+        }
+        if (priceArr.length > 0) {
+            searchParams.set('price', priceArr.join(','));
+        }
+
+        // Update the URL and reload the page
+        window.location.href = currentUrl.toString();
+    });
+     //handle filter products
+    $('#btnFilter').click(function (event) {
+        event.preventDefault();
+
+        let factoryArr = [];
+        let targetArr = [];
+        let priceArr = [];
+        //factory filter
+        $("#factoryFilter .form-check-input:checked").each(function () {
+            factoryArr.push($(this).val());
+        });
+
+        //target filter
+        $("#targetFilter .form-check-input:checked").each(function () {
+            targetArr.push($(this).val());
+        });
+
+        //price filter
+        $("#priceFilter .form-check-input:checked").each(function () {
+            priceArr.push($(this).val());
+        });
+
+        //sort order
+        let sortValue = $('input[name="radio-sort"]:checked').val();
+
+        const currentUrl = new URL(window.location.href);
+        const searchParams = currentUrl.searchParams;
+
+        // Add or update query parameters
+        searchParams.set('page', '1');
+        searchParams.set('sort', sortValue);
+
+        //reset
+        searchParams.delete('factory');
+        searchParams.delete('target');
+        searchParams.delete('price');
+
+        if (factoryArr.length > 0) {
+            searchParams.set('factory', factoryArr.join(','));
+        }
+
+        if (targetArr.length > 0) {
+            searchParams.set('target', targetArr.join(','));
+        }
+
+        if (priceArr.length > 0) {
+            searchParams.set('price', priceArr.join(','));
+        }
+
+        // Update the URL and reload the page
+        window.location.href = currentUrl.toString();
+    });
+
+    //handle auto checkbox after page loading
+    // Parse the URL parameters
+    const params = new URLSearchParams(window.location.search);
+
+    // Set checkboxes for 'factory'
+    if (params.has('factory')) {
+        const factories = params.get('factory').split(',');
+        factories.forEach(factory => {
+            $(`#factoryFilter .form-check-input[value="${factory}"]`).prop('checked', true);
+        });
+    }
+
+    // Set checkboxes for 'target'
+    if (params.has('target')) {
+        const targets = params.get('target').split(',');
+        targets.forEach(target => {
+            $(`#targetFilter .form-check-input[value="${target}"]`).prop('checked', true);
+        });
+    }
+
+    // Set checkboxes for 'price'
+    if (params.has('price')) {
+        const prices = params.get('price').split(',');
+        prices.forEach(price => {
+            $(`#priceFilter .form-check-input[value="${price}"]`).prop('checked', true);
+        });
+    }
+
+    // Set radio buttons for 'sort'
+    if (params.has('sort')) {
+        const sort = params.get('sort');
+        $(`input[type="radio"][name="radio-sort"][value="${sort}"]`).prop('checked', true);
+    }
+
+  });
+</script>
+
                 </body>
 
                 </html>

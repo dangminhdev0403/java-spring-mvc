@@ -1,6 +1,7 @@
 
 (function ($) {
     "use strict";
+    alert("Test file is working!");
 
     // Spinner
     var spinner = function () {
